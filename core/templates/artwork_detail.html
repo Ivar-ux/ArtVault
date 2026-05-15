@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ artwork.title }} - Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 40px; }
+        .container { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #00adb5; text-decoration: none; }
+        .artwork-image img { max-width: 100%; border-radius: 8px; border: 1px solid #333; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        .available { background: #28a745; color: white; }
+        .sold { background: #dc3545; color: white; }
+        .bidding { background: #ffc107; color: #111; }
+        .info-section { background: #1e1e1e; padding: 20px; border-radius: 8px; border: 1px solid #333; }
+        .provenance { background: #252525; padding: 15px; border-left: 4px solid #00adb5; margin-top: 20px; font-style: italic; }
+        .bid-box { margin-top: 30px; background: #252525; padding: 20px; border-radius: 6px; border: 1px solid #444; }
+        .btn-action { padding: 10px 20px; background: #00adb5; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-action:hover { background: #008c95; }
+        /* Style django default form paragraphs nicely */
+        .bid-box p { margin-bottom: 15px; }
+        .bid-box input { padding: 10px; width: 90%; background: #333; color: white; border: 1px solid #555; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <a class="back-link" href="{% url 'catalogue' %}">← Back to Marketplace</a>
+
+    <div class="container">
+        <div class="artwork-image">
+            {% if artwork.thumbnail %}
+                <img src="{{ artwork.thumbnail.url }}" alt="{{ artwork.title }}">
+            {% else %}
+                <div style="height: 400px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 8px;">No Image Available</div>
+            {% endif %}
+        </div>
+
+        <div class="info-section">
+            <span class="badge {% if artwork.sold_status == 'Sold' %}sold{% elif artwork.sold_status == 'Bidding' %}bidding{% else %}available{% endif %}">
+                {{ artwork.sold_status|default:"Available" }}
+            </span>
+
+            <h1>{{ artwork.title }}</h1>
+            <p><strong>Medium:</strong> {{ artwork.medium }}</p>
+            <p><strong>Edition:</strong> {{ artwork.edition|default:"Original Piece (1/1)" }}</p>
+
+            <p><strong>Current Price:</strong> ${{ artwork.starting_bid_price }}</p>
+
+            <div class="provenance">
+                <h3>📜 Provenance & History</h3>
+                <p>{{ artwork.provenance }}</p>
+                <small style="color: #aaa;">
+                    Seller: {{ artwork.seller.name }} <br>
+                    {% if artwork.seller.type == 'Gallery' %}
+                         📍 (Gallery Verified - {{ artwork.seller.street_name }}, {{ artwork.seller.city }})
+                    {% else %}
+                         🛡️ (Private Seller - Identity & Location Retained securely by ArtVault)
+                    {% endif %}
+                </small>
+            </div>
+
+            <div class="bid-box">
+                {% if artwork.sold_status == 'Sold' %}
+                    <h3 style="color: #dc3545; margin: 0;">❌ This item has been sold.</h3>
+                {% else %}
+                    <h3>🔨 Place a Bid / Purchase</h3>
+                    <p>Enter your offer details below to initiate transaction protocols.</p>
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn-action">Submit Offer</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
