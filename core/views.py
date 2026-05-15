@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Artwork, Bid  # Added Bid here
-from .forms import BidForm, FinalizationForm  # Added FinalizationForm here
+from .models import Artwork, Bid
+from .forms import BidForm, FinalizationForm
 
 def artwork_catalogue(request):
     """
@@ -17,10 +17,7 @@ def artwork_detail(request, artwork_id):
     """
     Handles UC-03 (Details) and UC-04 (Bidding).
     """
-    # 1. FIXED: Changed pk=pk to id=artwork_id
     artwork = get_object_or_404(Artwork, id=artwork_id)
-
-    # 2. FIXED: Changed exclude(pk=pk) to exclude(id=artwork_id)
     other_artworks = Artwork.objects.filter(seller=artwork.seller).exclude(id=artwork_id)
 
     if request.method == 'POST':
@@ -33,7 +30,6 @@ def artwork_detail(request, artwork_id):
             bid.artwork = artwork
             bid.user = request.user
             bid.save()
-            # 3. FIXED: Changed pk=pk to artwork_id=artwork_id to match your main urls.py name
             return redirect('artwork_detail', artwork_id=artwork_id)
     else:
         form = BidForm()
@@ -50,7 +46,7 @@ def checkout_step(request, bid_id):
     """
     bid = get_object_or_404(Bid, id=bid_id)
 
-    # Security check: Only the user who placed the bid can finalize
+    # Security verification: ensure current session user owns the bid object
     if bid.user != request.user:
         return redirect('catalogue')
 
@@ -61,7 +57,7 @@ def checkout_step(request, bid_id):
             finalization.bid = bid
             finalization.save()
 
-            # Update Artwork status to 'Sold' per requirements
+            # Transition model state to enforce business rule operational constraints
             bid.artwork.sold_status = 'Sold'
             bid.artwork.save()
 
