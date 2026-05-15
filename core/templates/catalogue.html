@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArtVault - Catalogue</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #121212; color: #ffffff; margin: 20px; }
+        .search-container { margin-bottom: 30px; }
+        input[type="text"] { padding: 10px; width: 300px; border-radius: 4px; border: 1px solid #444; background: #222; color: #fff; }
+        button { padding: 10px 20px; border-radius: 4px; border: none; background: #00adb5; color: white; cursor: pointer; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .artwork-card { background: #1e1e1e; padding: 15px; border-radius: 8px; border: 1px solid #333; text-align: center; }
+        .artwork-card img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 4px; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-top: 10px; }
+        .available { background: #28a745; color: white; }
+        .sold { background: #dc3545; color: white; }
+        .bidding { background: #ffc107; color: #111; }
+        .btn-view { display: block; margin-top: 15px; padding: 8px; background: #333; color: #fff; text-decoration: none; border-radius: 4px; }
+        .btn-view:hover { background: #444; }
+    </style>
+</head>
+<body>
+
+    <h1>🎨 ArtVault Marketplace</h1>
+
+    <div class="search-container">
+        <form method="GET" action="">
+            <input type="text" name="search" placeholder="Search by artwork title..." value="{{ request.GET.search }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <div class="gallery-grid">
+        {% for artwork in artworks %}
+            <div class="artwork-card">
+                {% if artwork.thumbnail %}
+                    <img src="{{ artwork.thumbnail.url }}" alt="{{ artwork.title }}">
+                {% else %}
+                    <div style="height: 200px; background: #333; display: flex; align-items: center; justify-content: center; border-radius: 4px;">No Image</div>
+                {% endif %}
+
+                <h3>{{ artwork.title }}</h3>
+                <p style="color: #aaa; margin: 5px 0;">{{ artwork.medium }}</p>
+
+                <span class="badge {% if artwork.sold_status == 'Sold' %}sold{% elif artwork.sold_status == 'Bidding' %}bidding{% else %}available{% endif %}">
+                    {{ artwork.sold_status|default:"Available" }}
+                </span>
+
+                <a class="btn-view" href="{% url 'artwork_detail' artwork.id %}">View Details</a>
+            </div>
+        {% empty %}
+            <p>No artworks found in the vault right now.</p>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
