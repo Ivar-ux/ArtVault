@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Checkout - ArtVault</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #121212; color: #fff; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 8px; max-width: 500px; margin: auto; }
+        .btn { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
 </head>
 <body>
-$END$
+    <div class="card">
+        <h2>🔒 Finalize Your Purchase</h2>
+        <p>You are finalizing the bid for: <strong>{{ bid.artwork.title }}</strong></p>
+        <p>Offer Amount: ${{ bid.amount }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">Confirm & Pay</button>
+        </form>
+    </div>
 </body>
 </html>
